@@ -10,7 +10,7 @@ OUTPUT = tmx2lev
 
 OBJS = tinystr.cpp tinyxml.cpp tinyxmlerror.cpp tinyxmlparser.cpp \
        base64.cpp TmxImage.cpp TmxLayer.cpp TmxMap.cpp TmxObject.cpp \
-       TmxObjectGroup.cpp TmxPolygon.cpp TmxPolyLine.cpp TmxPropertySet.cpp \
+       TmxObjectGroup.cpp TmxPolygon.cpp TmxPolyline.cpp TmxPropertySet.cpp \
        TmxTile.cpp TmxTileset.cpp TmxUtil.cpp \
        main.cpp
 
