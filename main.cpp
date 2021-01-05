@@ -51,13 +51,21 @@ printf("parsed map...\n");
   write_word(w, fp);
   write_word(h, fp);
 
+#ifdef VERTICAL
   for (int x = 0; x < w; x++) {
     for (int y = 0; y < h; y++) {
       char tile_id = (char) layer->GetTileId(x, y);
       fputc(tile_id, fp);
     }
   }
-      
+#else
+  for (int y = 0; y < h; y++) {
+    for (int x = 0; x < w; x++) {
+      char tile_id = (char) layer->GetTileId(x, y);
+      fputc(tile_id, fp);
+    }
+  }
+#endif
 
   return 0;
 }
