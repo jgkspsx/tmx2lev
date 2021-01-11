@@ -29,6 +29,21 @@ char get_tile_type(const char *str)
   return result;
 }
 
+int get_max_tiles(const Tmx::Tileset *tileset)
+{
+  int w  = (tileset->GetImage())->GetWidth();
+  int h  = (tileset->GetImage())->GetHeight();
+
+  int tw = tileset->GetTileWidth();
+  int th = tileset->GetTileHeight();
+
+  int max_tiles_x = w / tw;
+  int max_tiles_y = h / th;
+
+  return max_tiles_x * max_tiles_y;
+}
+
+
 int main(int argc, char **argv) {
   if (argc < 3) {
     printf("Usage is: %s <tmxfile> <binfile>\n", argv[0]);
@@ -66,25 +81,37 @@ printf("parsed map...\n");
     return 1;
   }
 
-  std::vector<Tmx::Tile*> tiles = tileset->GetTiles();
-  unsigned char num_tiles = tiles.size();
-
+  int num_tiles = get_max_tiles(tileset);
   printf("Number of tiles: %d\n", num_tiles);
-  fputc(num_tiles, fp);
+  fputc((char) num_tiles, fp);
 
-  for (int i = 0; i < (int) num_tiles; i++) {
-    Tmx::Tile *tile = tiles[i];
-    const Tmx::PropertySet prop = tile->GetProperties();
-    std::string value = prop.GetLiteralProperty(std::string("type"));
-    char type = get_tile_type(value.c_str());
-    if (type == TILE_TYPE_OVERLAY) {
-      std::string value = prop.GetLiteralProperty(std::string("bg_tile"));
-      char bg = (char) atoi(value.c_str());
-      bg <<= 1;
-      type |= bg;
+  std::vector<Tmx::Tile*> tiles = tileset->GetTiles();
+  for (int i = 0; i < num_tiles; i++) {
+
+    std::string value;
+    char type = TILE_TYPE_NONE;
+
+    for (int j = 0; j < tiles.size(); j++) {
+
+      Tmx::Tile *tile = tiles[j];
+      if (i == tile->GetId()) {
+
+        const Tmx::PropertySet prop = tile->GetProperties();
+        value = prop.GetLiteralProperty(std::string("type"));
+
+        type = get_tile_type(value.c_str());
+        if (type == TILE_TYPE_OVERLAY) {
+          std::string value = prop.GetLiteralProperty(std::string("bg_tile"));
+          char bg = (char) atoi(value.c_str());
+          bg <<= 1;
+          type |= bg;
+        }
+
+        printf("tile: %d %s(0x%x)\n", i, value.c_str(), type & 0xFF);
+        break;
+      }
     }
 
-    printf("tile: %d %s(0x%x)\n", tile->GetId(), value.c_str(), type & 0xFF);
     fputc(type, fp);
   }
 
